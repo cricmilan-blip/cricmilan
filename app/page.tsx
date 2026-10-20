@@ -1,7 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import AdBanner from '@/components/AdBanner';
-import { getPublishedArticles, getArticlesByCategory } from '@/lib/db';
+import BreakingTicker from '@/components/BreakingTicker';
+import { getPublishedArticles, getArticlesByCategory, getBreakingArticles } from '@/lib/db';
 
 export const revalidate = 60; // ISR cache for 60 seconds
 
@@ -10,13 +11,18 @@ export default async function HomePage() {
   const featuredArticles = allArticles.slice(0, 4);
   const latestArticles = allArticles;
   const cricketArticles = await getArticlesByCategory('Cricket', 6);
+  const storiesArticles = await getArticlesByCategory('Stories', 6);
   const indiaArticles = await getArticlesByCategory('India', 6);
+  const breakingArticles = await getBreakingArticles(6);
 
   const primary = featuredArticles[0];
   const secondaryStories = featuredArticles.slice(1);
 
   return (
     <>
+      {/* Breaking News Marquee Ticker */}
+      <BreakingTicker articles={breakingArticles} />
+
       {/* Hero Section (Bento Magazine Layout) */}
       <section className="hero-bento-grid">
         {primary ? (
@@ -178,6 +184,53 @@ export default async function HomePage() {
                         />
                       </Link>
                       <span className="category-badge cat-cricket">{article.category}</span>
+                    </div>
+                    <div className="card-content">
+                      <h3>
+                        <Link href={`/${article.slug}`}>{article.title}</Link>
+                      </h3>
+                      <p>{article.meta_description || 'Read the full story on CricMilan.in'}</p>
+                      <div className="card-meta">
+                        <div className="author-pill">
+                          <span className="author-avatar">{article.author ? article.author.charAt(0).toUpperCase() : 'C'}</span>
+                          <span>{article.author}</span>
+                        </div>
+                        <span className="date-text">
+                          {new Date(article.published_at).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Stories Category Section */}
+          {storiesArticles.length > 0 && (
+            <>
+              <div className="section-header-bar" style={{ marginTop: '2.5rem' }}>
+                <div className="section-title-wrap">
+                  <div className="section-indicator" style={{ background: '#8b5cf6' }}></div>
+                  <h2 className="section-title">Inspiring Stories &amp; Biographies</h2>
+                </div>
+                <Link href="/category/stories" className="view-all-link">View All Stories &rarr;</Link>
+              </div>
+              <div className="news-grid-3">
+                {storiesArticles.map((article) => (
+                  <article className="article-card" key={article.id}>
+                    <div className="card-img">
+                      <Link href={`/${article.slug}`}>
+                        <img
+                          src={article.featured_image || '/css/placeholder.jpg'}
+                          alt={article.title}
+                          loading="lazy"
+                        />
+                      </Link>
+                      <span className="category-badge cat-stories">{article.category}</span>
                     </div>
                     <div className="card-content">
                       <h3>

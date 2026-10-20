@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "db:backup": "node scripts/backup_db.js",
+    "db:import": "node scripts/import_db.js"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",
